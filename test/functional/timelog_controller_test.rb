@@ -2,7 +2,7 @@
 
 require File.expand_path '../../test_helper', __FILE__
 
-class TimeEntriesControllerTest < RedmineSampleData::ControllerTest
+class TimelogControllerTest < RedmineSampleData::ControllerTest
   def setup
     @user = first_non_admin_user
     User.current = @user
@@ -11,8 +11,7 @@ class TimeEntriesControllerTest < RedmineSampleData::ControllerTest
   def test_index
     @request.session[:user_id] = 2
 
-    get :index,
-        params: { id: issue.id }
+    get :index
 
     assert_response :success
   end
