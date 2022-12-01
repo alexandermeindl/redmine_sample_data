@@ -95,17 +95,17 @@ jobs:
       - name: Import mysql database dump
         working-directory: redmine/plugins/redmine_sample_data/sql
         run: |
-          mysqladmin --host 127.0.0.1 --port ${{ job.services.mysql.ports[3306] }} -uroot -pBestPasswordEver -f drop redmine
           mysqladmin --host 127.0.0.1 --port ${{ job.services.mysql.ports[3306] }} -uroot -pBestPasswordEver create redmine
           gunzip < mysql-c0f60e5fe.sql.gz | mysql --host 127.0.0.1 --port ${{ job.services.mysql.ports[3306] }} -uroot -pBestPasswordEver redmine
         if: matrix.db == 'mysql'
 
       - name: Import postgres database dump
         working-directory: redmine/plugins/redmine_sample_data/sql
+        env:
+          PGPASSWORD: redmine
         run: |
-          dropdb -p 5432 -U postgres -p'postgres' -f redmine
           createdb -p 5432 -U postgres -p'postgres' create redmine
-          gunzip < psql-c0f60e5fe.sql.gz | psql -p 5432 -U postgres -p'postgres' redmine
+          gunzip < psql-c0f60e5fe.sql.gz | psql -p 5432 -U postgres redmine
         if: matrix.db == 'postgres'
 
       - name: Run Redmine rake tasks
