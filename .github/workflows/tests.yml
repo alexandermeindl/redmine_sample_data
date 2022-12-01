@@ -5,13 +5,12 @@ on:
 
 jobs:
   test:
-    name: ${{ matrix.redmine }} ${{ matrix.db }} ruby-${{ matrix.ruby }}
+    name: ${{ matrix.db }} ruby-${{ matrix.ruby }}
     runs-on: ubuntu-latest
 
     strategy:
       matrix:
         ruby: ['2.7', '3.0', '3.1']
-        redmine: ['5.0-stable', 'master']
         db: ['postgres', 'mysql']
       fail-fast: false
 
@@ -53,8 +52,14 @@ jobs:
         uses: actions/checkout@v3
         with:
           repository: redmine/redmine
-          ref: ${{ matrix.redmine }}
+          ref: c0f60e5fe
           path: redmine
+
+      - name: Checkout redmine_sample_data
+        uses: actions/checkout@v3
+        with:
+          repository: alexandermeindl/redmine_sample_data
+          path: redmine/plugins/redmine_sample_data
 
       - name: Update package archives
         run: sudo apt-get update --yes --quiet
@@ -77,9 +82,9 @@ jobs:
       - name: Prepare Redmine source
         working-directory: redmine
         run: |
-          cp plugins/additionals/test/support/database-${{ matrix.db }}.yml config/database.yml
-          cp plugins/additionals/test/support/configuration.yml config/configuration.yml
-          cp plugins/additionals/test/support/additional_environment.rb config/additional_environment.rb
+          cp plugins/redmine_sample_data/test/support/database-${{ matrix.db }}.yml config/database.yml
+          cp plugins/redmine_sample_data/test/support/configuration.yml config/configuration.yml
+          cp plugins/redmine_sample_data/test/support/additional_environment.rb config/additional_environment.rb
 
       - name: Install Ruby dependencies
         working-directory: redmine
@@ -88,17 +93,19 @@ jobs:
           bundle install --jobs=4 --retry=3
 
       - name: Import mysql database dump
+        working-directory: redmine/plugins/redmine_sample_data/sql
         run: |
           mysqladmin --host 127.0.0.1 --port ${{ job.services.mysql.ports[3306] }} -uroot -pBestPasswordEver -f drop redmine
           mysqladmin --host 127.0.0.1 --port ${{ job.services.mysql.ports[3306] }} -uroot -pBestPasswordEver create redmine
-          gunzip < sql/mysql-c0f60e5fe.sql.gz | mysql --host 127.0.0.1 --port ${{ job.services.mysql.ports[3306] }} -uroot -pBestPasswordEver redmine
+          gunzip < mysql-c0f60e5fe.sql.gz | mysql --host 127.0.0.1 --port ${{ job.services.mysql.ports[3306] }} -uroot -pBestPasswordEver redmine
         if: matrix.db == 'mysql'
 
       - name: Import postgres database dump
+        working-directory: redmine/plugins/redmine_sample_data/sql
         run: |
           dropdb -p 5432 -U postgres -p'postgres' -f redmine
           createdb -p 5432 -U postgres -p'postgres' create redmine
-          gunzip < sql/psql-c0f60e5fe.sql.gz | psql -p 5432 -U postgres -p'postgres' redmine
+          gunzip < psql-c0f60e5fe.sql.gz | psql -p 5432 -U postgres -p'postgres' redmine
         if: matrix.db == 'postgres'
 
       - name: Run Redmine rake tasks
@@ -114,4 +121,4 @@ jobs:
           RAILS_ENV: test
           MYSQL_PORT: ${{ job.services.mysql.ports[3306] }}
         working-directory: redmine
-        run: bundle exec rake redmine:plugins:test NAME=additionals RUBYOPT="-W0"
+        run: bundle exec rake redmine:plugins:test NAME=redmine_sample_data RUBYOPT="-W0"
