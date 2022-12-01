@@ -8,7 +8,7 @@ class IssuesControllerTest < RedmineSampleData::ControllerTest
     User.current = @user
   end
 
-  def test_issue
+  def test_show
     @request.session[:user_id] = @user.id
 
     issue = Issue.visible.first
@@ -17,14 +17,14 @@ class IssuesControllerTest < RedmineSampleData::ControllerTest
     assert_response :success
   end
 
-  def test_issues
+  def test_index
     @request.session[:user_id] = @user.id
     get :index
 
     assert_response :success
   end
 
-  def test_issues_without_filters
+  def test_index_without_filters
     @request.session[:user_id] = @user.id
     get :index, params: { set_filters: 1 }
 

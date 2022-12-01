@@ -121,6 +121,7 @@ jobs:
         env:
           RAILS_ENV: test
           MYSQL_PORT: ${{ job.services.mysql.ports[3306] }}
+          RUBYOPT: '-W0'
         working-directory: redmine
         run: |
-          bundle exec rake redmine:plugins:test NAME=redmine_sample_data RUBYOPT="-W0"
+          bundle exec rails test plugins/redmine_sample_data/test/functional
