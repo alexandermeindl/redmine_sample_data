@@ -2,7 +2,7 @@
 
 This is a `Redmine` plugin for generate sample data for performance tests.
 
-TO NOT USE IT ON PRODUCTION ENVIRONMENTS!
+DO NOT USE IT ON PRODUCTION ENVIRONMENTS!
 
 ALL DATA OF YOUR REDMINE INSTALLATION WILL BE DELETED!
 
@@ -19,13 +19,13 @@ Install `redmine_sample_data` plugin for `Redmine`.
 
 ### Generate data with your setup
 
-#### advantage
+#### Advantages
 
 - you can use exactly your Redmine version
 - you can modify parameters for generating data
 - you can use it with your plugins
 
-#### Disadvantage
+#### Disadvantages
 
 - Generating data need couple of hours
 
@@ -49,11 +49,11 @@ Make your performance tests now with generated data.
 
 ### Use generated data from plugin
 
-#### Generated data advantage
+#### Advantages with generated data
 
-- fast usage
+- very fast usage
 
-#### Generated data Disadvantage
+#### Disadvantages with generated data
 
 - you need linux or macos
 - only available for MySQL 8 or PostgreSQL 14
