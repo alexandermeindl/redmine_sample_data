@@ -12,7 +12,7 @@ Install `additionals` plugin for `Redmine`.
 
 ```shell
   cd $REDMINE_ROOT
-  git clone -b stable https://github.com/AlphaNodes/redmine_sample_data plugins
+  git clone https://github.com/alexandermeindl/redmine_sample_data.git plugins
 ```
 
 ## Usage
