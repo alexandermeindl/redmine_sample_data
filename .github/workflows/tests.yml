@@ -102,7 +102,7 @@ jobs:
       - name: Import postgres database dump
         working-directory: redmine/plugins/redmine_sample_data/sql
         env:
-          PGPASSWORD: redmine
+          PGPASSWORD: postgres
         run: |
           createdb -h localhost -p 5432 -U postgres create redmine
           gunzip < psql-c0f60e5fe.sql.gz | psql -h localhost -p 5432 -U postgres redmine
