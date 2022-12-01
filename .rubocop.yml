@@ -1,0 +1,125 @@
+require:
+  - rubocop-performance
+  - rubocop-rails
+
+AllCops:
+  TargetRubyVersion: 2.7
+  TargetRailsVersion: 6.1
+  NewCops: enable
+  ActiveSupportExtensionsEnabled: true
+  Include:
+    - '**/*.rb'
+    - '**/*.rake'
+
+Rails:
+  Enabled: true
+
+Metrics/AbcSize:
+  Enabled: false
+
+Metrics/BlockLength:
+  Enabled: false
+
+Metrics/ParameterLists:
+  Enabled: true
+  CountKeywordArgs: false
+
+Metrics/ClassLength:
+  Enabled: false
+
+Metrics/CyclomaticComplexity:
+  Max: 25
+
+Style/HashConversion:
+  Enabled: true
+
+Layout/LineLength:
+  Max: 140
+
+Metrics/MethodLength:
+  Max: 60
+
+Metrics/ModuleLength:
+  Enabled: false
+
+Metrics/PerceivedComplexity:
+  Max: 25
+
+Rails/ApplicationJob:
+  Enabled: false
+
+Lint/AmbiguousOperatorPrecedence:
+  Enabled: false
+
+Rails/ApplicationRecord:
+  Enabled: false
+
+Rails/CreateTableWithTimestamps:
+  Enabled: false
+
+Rails/HelperInstanceVariable:
+  Enabled: false
+
+Rails/SkipsModelValidations:
+  Enabled: false
+
+Rails/Output:
+  Enabled: true
+
+Performance/ChainArrayAllocation:
+  Enabled: true
+
+Style/AutoResourceCleanup:
+  Enabled: true
+
+Style/ExpandPathArguments:
+  Enabled: true
+
+Style/OptionHash:
+  Enabled: true
+  SuspiciousParamNames:
+    - options
+    - api_options
+    - opts
+    - args
+    - params
+    - parameters
+    - settings
+
+# postgresql and mysql are supported
+# autodetect does not work without database configuration
+Rails/BulkChangeTable:
+  Enabled: true
+  Database: postgresql
+
+Style/ReturnNil:
+  Enabled: true
+
+Style/UnlessLogicalOperators:
+  Enabled: true
+
+Style/MethodCallWithArgsParentheses:
+  Enabled: true
+  AllowParenthesesInMultilineCall: true
+  AllowParenthesesInChaining: true
+  EnforcedStyle: omit_parentheses
+
+Style/Documentation:
+  Enabled: false
+
+Naming/VariableNumber:
+  Enabled: true
+  Exclude:
+    - 'test/**/*'
+
+Style/StringConcatenation:
+  Exclude:
+    - 'app/views/additionals/_select2_ajax_call.*'
+
+Layout/LineContinuationLeadingSpace:
+  Enabled: false
+
+# see https://github.com/rubocop/rubocop-rails/issues/578
+# redmine does not use load_defaults: https://rails.rubystyle.guide/#config-defaults
+Rails/RedundantPresenceValidationOnBelongsTo:
+  Enabled: false
