@@ -8,7 +8,7 @@ ALL DATA OF YOUR REDMINE INSTALLATION WILL BE DELETED!
 
 ## Installation
 
-Install `additionals` plugin for `Redmine`.
+Install `redmine_sample_data` plugin for `Redmine`.
 
 ```shell
   cd $REDMINE_ROOT

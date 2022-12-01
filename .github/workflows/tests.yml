@@ -1,0 +1,117 @@
+name: Performance tests
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    name: ${{ matrix.redmine }} ${{ matrix.db }} ruby-${{ matrix.ruby }}
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        ruby: ['2.7', '3.0', '3.1']
+        redmine: ['5.0-stable', 'master']
+        db: ['postgres', 'mysql']
+      fail-fast: false
+
+    services:
+      postgres:
+        image: postgres:14
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: 'BestPasswordEver'
+        ports:
+          # will assign a random free host port
+          - 3306/tcp
+        options: >-
+          --health-cmd="mysqladmin ping"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=3
+
+    steps:
+      - name: Verify MySQL connection from host
+        run: |
+          mysql --host 127.0.0.1 --port ${{ job.services.mysql.ports[3306] }} -uroot -pBestPasswordEver -e "SHOW DATABASES"
+        if: matrix.db == 'mysql'
+
+      - name: Checkout Redmine
+        uses: actions/checkout@v3
+        with:
+          repository: redmine/redmine
+          ref: ${{ matrix.redmine }}
+          path: redmine
+
+      - name: Update package archives
+        run: sudo apt-get update --yes --quiet
+
+      - name: Install package dependencies
+        run: >
+          sudo apt-get install --yes --quiet
+          build-essential
+          cmake
+          libicu-dev
+          libpq-dev
+          libmysqlclient-dev
+
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ${{ matrix.ruby }}
+          bundler-cache: true # runs 'bundle install' and caches installed gems automatically
+
+      - name: Prepare Redmine source
+        working-directory: redmine
+        run: |
+          cp plugins/additionals/test/support/database-${{ matrix.db }}.yml config/database.yml
+          cp plugins/additionals/test/support/configuration.yml config/configuration.yml
+          cp plugins/additionals/test/support/additional_environment.rb config/additional_environment.rb
+
+      - name: Install Ruby dependencies
+        working-directory: redmine
+        run: |
+          bundle config set --local without 'development'
+          bundle install --jobs=4 --retry=3
+
+      - name: Import mysql database dump
+        run: |
+          mysqladmin --host 127.0.0.1 --port ${{ job.services.mysql.ports[3306] }} -uroot -pBestPasswordEver -f drop redmine
+          mysqladmin --host 127.0.0.1 --port ${{ job.services.mysql.ports[3306] }} -uroot -pBestPasswordEver create redmine
+          gunzip < sql/mysql-c0f60e5fe.sql.gz | mysql --host 127.0.0.1 --port ${{ job.services.mysql.ports[3306] }} -uroot -pBestPasswordEver redmine
+        if: matrix.db == 'mysql'
+
+      - name: Import postgres database dump
+        run: |
+          dropdb -p 5432 -U postgres -p'postgres' -f redmine
+          createdb -p 5432 -U postgres -p'postgres' create redmine
+          gunzip < sql/psql-c0f60e5fe.sql.gz | psql -p 5432 -U postgres -p'postgres' redmine
+        if: matrix.db == 'postgres'
+
+      - name: Run Redmine rake tasks
+        env:
+          RAILS_ENV: test
+          MYSQL_PORT: ${{ job.services.mysql.ports[3306] }}
+        working-directory: redmine
+        run: |
+          bundle exec rake generate_secret_token
+
+      - name: Run tests
+        env:
+          RAILS_ENV: test
+          MYSQL_PORT: ${{ job.services.mysql.ports[3306] }}
+        working-directory: redmine
+        run: bundle exec rake redmine:plugins:test NAME=additionals RUBYOPT="-W0"
