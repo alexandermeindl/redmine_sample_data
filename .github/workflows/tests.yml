@@ -104,8 +104,8 @@ jobs:
         env:
           PGPASSWORD: redmine
         run: |
-          createdb -p 5432 -U postgres create redmine
-          gunzip < psql-c0f60e5fe.sql.gz | psql -p 5432 -U postgres redmine
+          createdb -h localhost -p 5432 -U postgres create redmine
+          gunzip < psql-c0f60e5fe.sql.gz | psql -h localhost -p 5432 -U postgres redmine
         if: matrix.db == 'postgres'
 
       - name: Run Redmine rake tasks
@@ -123,4 +123,4 @@ jobs:
           MYSQL_PORT: ${{ job.services.mysql.ports[3306] }}
         working-directory: redmine
         run: |
-         bundle exec rake Rails::TestUnit::Runner.rake_run ["plugins/redmine_sample_data/test/performance/**/*_test.rb"]
+         bundle exec rake test:benchmark plugins/redmine_sample_data/test/performance
