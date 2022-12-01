@@ -123,4 +123,4 @@ jobs:
           MYSQL_PORT: ${{ job.services.mysql.ports[3306] }}
         working-directory: redmine
         run: |
-          run: bundle exec rake redmine:plugins:test NAME=redmine_sample_data RUBYOPT="-W0"
+          bundle exec rake redmine:plugins:test NAME=redmine_sample_data RUBYOPT="-W0"

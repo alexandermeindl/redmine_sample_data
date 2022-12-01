@@ -11,7 +11,6 @@ class IssuesControllerTest < RedmineSampleData::ControllerTest
   def test_issue
     @request.session[:user_id] = @user.id
 
-    binding.break
     issue = Issue.visible.first
     get :show, params: { id: issue.id }
 
