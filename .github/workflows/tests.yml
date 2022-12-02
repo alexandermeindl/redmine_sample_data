@@ -104,7 +104,7 @@ jobs:
         env:
           PGPASSWORD: postgres
         run: |
-          createdb -h localhost -p 5432 -U postgres create redmine
+          createdb -h localhost -p 5432 -U postgres redmine
           gunzip < psql-c0f60e5fe.sql.gz | psql -h localhost -p 5432 -U postgres redmine
         if: matrix.db == 'postgres'
 
